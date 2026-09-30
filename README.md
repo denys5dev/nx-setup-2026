@@ -31,66 +31,73 @@ See [Nx's Vitest documentation](https://nx.dev/docs/technologies/test-tools/vite
 
 ```text
 apps/
-  vega/                       bootstrap, providers, root outlet, routes
+  vega/                       bootstrap, root providers and outlet
   sirius/                     bootstrap, root module
   vega-e2e/                   full-stack Playwright tests
 libs/
-  sirius/dashboard/
-    api/src/lib/
-      dashboard.controller.ts
-      todo.controller.ts
-      todo.dto.ts
-      dashboard.module.ts
-    domain/src/lib/
-      dashboard.module.ts
-      application/dashboard.service.ts
-      infrastructure/todo.repository.ts
-  vega/dashboard/
-    feature/src/lib/
-      dashboard.routes.ts     lazy feature registration
-      dashboard-page.ts       store connection
-      dashboard.ts            stateless view (HTML + SCSS)
-    domain/src/lib/
-      dashboard.providers.ts
-      store/                  actions, reducer, selectors, effects
-      infrastructure/dashboard.data.service.ts
+  vega/
+    shell/                    application routes; lazy domain-shell loading
+    dashboard/
+      shell/                  dashboard routes and domain providers
+      feature/dashboard-page/ store-connected parent component
+      ui/dashboard/           presentation component, view model and events
+      domain/
+        src/lib/store/        actions, reducer, selectors, effects
+        src/lib/infrastructure/ HTTP data service
+  sirius/
+    shell/                    API module composition
+    dashboard/
+      api/                    controllers and request validation
+      domain/
+        src/lib/application/  dashboard service
+        src/lib/infrastructure/ todo repository
   shared/dashboard/contracts/ framework-free HTTP types
   shared/ui/design-system/    SCSS components and Storybook
 ```
 
-Application code lives in libraries; apps compose it. Configuration, static
-assets, global styles, and bootstrap tests also belong with their apps.
+Application code and feature composition live in libraries; apps bootstrap shells.
+Configuration, static assets, global styles, and bootstrap tests also belong with their apps.
 Nx project identifiers include scope and layer (`sirius-dashboard-api`) because
 they must be unique across the workspace. Source filenames do not repeat that
 prefix. Module classes distinguish API and domain to make composition readable.
 
 ## Architecture and imports
 
-This follows the reference project's API/domain and feature/domain split.
+This follows the reference project's application shell, domain shell, feature/UI,
+and API/domain boundaries.
 Internal libraries are non-buildable: each application's bundler compiles its
 dependencies. Nx tags and ESLint enforce frontend/backend separation and these
 layer dependencies:
 
 ```text
-Sirius app → dashboard/api → dashboard/domain
-Vega app  → dashboard/feature (lazy) → dashboard/domain
+Sirius app → sirius/shell → dashboard/api → dashboard/domain
+Vega app → vega/shell → dashboard/shell (lazy)
+                           ├─ feature/dashboard-page → domain
+                           │                         → ui/dashboard
+                           └─ domain providers
+UI → other UI and framework-free utilities/contracts
 ```
+
+Apps may import only shell libraries. Shells compose shells, features, API,
+domain, UI and utilities. Features depend on domain, UI and utilities; UI cannot
+import domain, NgRx or HTTP. Scope tags also prevent Vega/Sirius cross-imports.
+These rules apply to library public APIs, with ESLint enforcing the dependencies.
 
 Use named exports in each library's `src/index.ts` for its small public API.
 Use direct relative imports inside that library, never its own barrel. Import
 other libraries through their public aliases; do not deep-import their files.
 There are no umbrella barrels or nested folder barrels. Keep the dashboard
-feature import dynamic so it stays in a separate route chunk.
+shell import dynamic so the feature and its domain stay in a separate route chunk.
 
 Barrels do not automatically prevent tree shaking. Side effects, eager imports,
 and overly broad public APIs cause trouble. Export only what consumers need,
 use `export type` for types, and keep infrastructure implementations private.
 
 The `domain` name follows the reference's pragmatic usage: it includes application
-services and infrastructure, so it is not a framework-free DDD domain. Add
-`entities/` and reusable `ui/`
-only when real behavior needs them. Empty repositories, interfaces, stores, and
-one-project-per-class boundaries would add maintenance now.
+services and infrastructure, so it is not a framework-free DDD domain. Keep
+presentation in named `ui/` libraries and store-connected parents in named
+`feature/` libraries. Colocate each component with its template, styles and tests.
+Add `entities/` when domain behavior needs it; avoid empty placeholder layers.
 
 If business rules become substantial, separate a pure domain from application
 orchestration and infrastructure, and enforce those dependencies as separate Nx
@@ -108,17 +115,24 @@ these internal libraries are not independently published packages.
 ```sh
 pnpm nx g @nx/nest:library libs/sirius/orders/domain --name=sirius-orders-domain --importPath=@celestial/sirius/orders/domain --unitTestRunner=vitest --tags=scope:sirius,type:domain --no-interactive
 pnpm nx g @nx/nest:library libs/sirius/orders/api --name=sirius-orders-api --importPath=@celestial/sirius/orders/api --unitTestRunner=vitest --tags=scope:sirius,type:api --no-interactive
-pnpm nx g @nx/angular:library libs/vega/orders/feature --name=vega-orders-feature --importPath=@celestial/vega/orders/feature --unitTestRunner=vitest-analog --tags=scope:vega,type:feature --no-interactive
+pnpm nx g @nx/angular:library libs/vega/orders/shell --name=vega-orders-shell --importPath=@celestial/vega/orders/shell --standalone=false --skipModule --unitTestRunner=none --tags=scope:vega,type:shell --no-interactive
+pnpm nx g @nx/angular:library libs/vega/orders/feature/orders-page --name=vega-orders-feature-orders-page --importPath=@celestial/vega/orders/feature/orders-page --prefix=v --unitTestRunner=vitest-analog --tags=scope:vega,type:feature --no-interactive
+pnpm nx g @nx/angular:library libs/vega/orders/ui/orders --name=vega-orders-ui-orders --importPath=@celestial/vega/orders/ui/orders --prefix=v --unitTestRunner=vitest-analog --tags=scope:vega,type:ui --no-interactive
 ```
 
-Keep generated source names short (`orders.controller.ts`, `orders.ts`). Add
-infrastructure and UI libraries when the feature actually needs those boundaries.
+Keep generated source names short (`orders.controller.ts`, `orders.ts`). Register
+the frontend domain providers and feature routes in its shell, lazy-load that
+shell from `vega/shell`, and import backend API modules from `sirius/shell`.
+Keep generated lint and typecheck targets consistent with existing libraries.
 
 ## Frontend layers
 
 `DashboardPage` connects NgRx Store to the stateless `Dashboard` view. The view
-receives a model and emits typed page actions; it owns no store, HTTP calls, or
-mutable state. `Store.selectSignal` reads the Redux store; it is not SignalStore.
+receives a UI-owned model and emits typed user intentions; it owns no NgRx
+actions, store, HTTP calls, or mutable state. The parent maps those intentions
+to `DashboardPageActions`. The selector result structurally satisfies the UI
+model without either library depending on the other. `Store.selectSignal` reads
+the Redux store; it is not SignalStore.
 
 The domain library owns:
 
@@ -127,10 +141,10 @@ The domain library owns:
 - `store/dashboard.selectors.ts`: derived counts and the view model.
 - `store/dashboard.effects.ts`: asynchronous CRUD orchestration and error recovery.
 - `infrastructure/dashboard.data.service.ts`: HTTP methods and endpoint URLs.
-- `dashboard.providers.ts`: feature state/effect registration, consumed by the lazy route.
+- `dashboard.providers.ts`: feature state/effect registration, consumed by the dashboard shell route.
 
-`provideStore()` is registered once in Vega. The feature registers through its
-lazy routes, following [Nx's standalone feature registration pattern](https://nx.dev/blog/using-ngrx-standalone-apis-with-nx)
+`provideStore()` is registered once in Vega. The dashboard shell registers feature
+state and effects through its lazy routes, following [Nx's standalone feature registration pattern](https://nx.dev/blog/using-ngrx-standalone-apis-with-nx)
 with the current `ngrx-feature-store` generator and NgRx 22 APIs.
 [Angular recommends presentation-focused components](https://angular.dev/style-guide);
 [NgRx Effects isolate asynchronous work](https://ngrx.io/guide/effects).

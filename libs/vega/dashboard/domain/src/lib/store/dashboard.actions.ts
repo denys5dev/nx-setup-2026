@@ -17,9 +17,6 @@ export const DashboardPageActions = createActionGroup({
     Delete: props<{ id: string }>(),
   },
 });
-export type DashboardPageAction = ReturnType<
-  (typeof DashboardPageActions)[keyof typeof DashboardPageActions]
->;
 
 export const DashboardApiActions = createActionGroup({
   source: 'Dashboard API',

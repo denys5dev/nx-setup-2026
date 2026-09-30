@@ -5,13 +5,13 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { appRoutes } from './app.routes';
+import { vegaShellRoutes } from '@celestial/vega/shell';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideStore(),
     provideHttpClient(),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(appRoutes),
+    provideRouter(vegaShellRoutes),
   ],
 };

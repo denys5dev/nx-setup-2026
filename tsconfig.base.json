@@ -22,9 +22,6 @@
       "@celestial/sirius/dashboard/api": [
         "./libs/sirius/dashboard/api/src/index.ts"
       ],
-      "@celestial/vega/dashboard/feature": [
-        "./libs/vega/dashboard/feature/src/index.ts"
-      ],
       "@celestial/vega/dashboard/domain": [
         "./libs/vega/dashboard/domain/src/index.ts"
       ],
@@ -33,6 +30,17 @@
       ],
       "@celestial/shared/dashboard/contracts": [
         "./libs/shared/dashboard/contracts/src/index.ts"
+      ],
+      "@celestial/vega/dashboard/feature/dashboard-page": [
+        "./libs/vega/dashboard/feature/dashboard-page/src/index.ts"
+      ],
+      "@celestial/vega/dashboard/shell": [
+        "./libs/vega/dashboard/shell/src/index.ts"
+      ],
+      "@celestial/sirius/shell": ["./libs/sirius/shell/src/index.ts"],
+      "@celestial/vega/shell": ["./libs/vega/shell/src/index.ts"],
+      "@celestial/vega/dashboard/ui/dashboard": [
+        "./libs/vega/dashboard/ui/dashboard/src/index.ts"
       ]
     },
     "sourceMap": true,

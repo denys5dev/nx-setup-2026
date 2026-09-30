@@ -1,0 +1,11 @@
+<v-dashboard
+  [view]="view()"
+  (refreshRequested)="store.dispatch(actions.load())"
+  (newTitleChanged)="store.dispatch(actions.newTitleChanged({ title: $event }))"
+  (editTitleChanged)="store.dispatch(actions.editTitleChanged({ title: $event }))"
+  (editRequested)="store.dispatch(actions.edit({ todo: $event }))"
+  (editCancelled)="store.dispatch(actions.cancelEdit())"
+  (todoCreated)="store.dispatch(actions.create({ title: $event }))"
+  (todoUpdated)="store.dispatch(actions.update($event))"
+  (todoDeleted)="store.dispatch(actions.delete({ id: $event }))"
+/>

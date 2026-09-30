@@ -1,0 +1,17 @@
+{
+  "name": "sirius-shell",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/sirius/shell/src",
+  "projectType": "library",
+  "tags": ["scope:sirius", "type:shell"],
+  "// targets": "to see all targets run: nx show project sirius-shell --web",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["tsc --noEmit -p libs/sirius/shell/tsconfig.lib.json"],
+        "parallel": false
+      }
+    }
+  }
+}

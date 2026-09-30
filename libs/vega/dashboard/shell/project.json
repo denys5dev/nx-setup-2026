@@ -1,0 +1,19 @@
+{
+  "name": "vega-dashboard-shell",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vega/dashboard/shell/src",
+  "prefix": "v",
+  "projectType": "library",
+  "tags": ["scope:vega", "type:shell"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p libs/vega/dashboard/shell/tsconfig.lib.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

@@ -30,7 +30,12 @@ export default [
             },
             {
               sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: ['type:shell'],
+            },
+            {
+              sourceTag: 'type:shell',
               onlyDependOnLibsWithTags: [
+                'type:shell',
                 'type:api',
                 'type:feature',
                 'type:domain',
@@ -53,6 +58,11 @@ export default [
             {
               sourceTag: 'type:ui',
               onlyDependOnLibsWithTags: ['type:ui', 'type:util'],
+              bannedExternalImports: [
+                '@ngrx/*',
+                '@angular/common/http',
+                '@angular/common/http/*',
+              ],
             },
             {
               sourceTag: 'type:util',

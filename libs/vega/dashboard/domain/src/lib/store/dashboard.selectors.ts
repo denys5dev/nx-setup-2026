@@ -24,4 +24,3 @@ export const selectDashboardView = createSelector(
     remaining,
   }),
 );
-export type DashboardView = ReturnType<typeof selectDashboardView>;

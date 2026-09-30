@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DashboardApiModule } from '@celestial/sirius/dashboard/api';
+import { SiriusShellModule } from '@celestial/sirius/shell';
 
-@Module({ imports: [DashboardApiModule] })
+@Module({ imports: [SiriusShellModule] })
 export class AppModule {}

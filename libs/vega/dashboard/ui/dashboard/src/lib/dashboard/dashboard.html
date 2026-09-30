@@ -1,0 +1,109 @@
+<main>
+  <header>
+    <h1>Dashboard</h1>
+    <p role="status">
+      @if (view().pending) { {{ view().loaded ? 'Updating dashboard…' : 'Loading
+      dashboard…' }} } @else { {{ view().message }} }
+    </p>
+  </header>
+
+  @if (view().error; as error) {
+  <p role="alert">{{ error }}</p>
+  }
+
+  <section aria-labelledby="todos-heading" [attr.aria-busy]="view().pending">
+    <div class="section-header">
+      <h2 id="todos-heading">Todos</h2>
+      <ds-button
+        variant="secondary"
+        [disabled]="view().pending"
+        (click)="refreshRequested.emit()"
+        >Refresh</ds-button
+      >
+    </div>
+    <form (ngSubmit)="todoCreated.emit(view().newTitle)">
+      <label for="new-todo">New todo</label>
+      <div class="form-controls">
+        <input
+          id="new-todo"
+          name="newTodo"
+          [ngModel]="view().newTitle"
+          (ngModelChange)="newTitleChanged.emit($event)"
+          [maxlength]="titleMaxLength"
+          [disabled]="view().pending || !view().loaded"
+          required
+        />
+        <ds-button
+          type="submit"
+          [disabled]="view().pending || !view().loaded || !view().newTitle.trim()"
+          >Add todo</ds-button
+        >
+      </div>
+    </form>
+
+    @if (view().loaded) {
+    <p>{{ view().remaining }} remaining of {{ view().todos.length }}</p>
+    <ul aria-label="Todos">
+      @for (todo of view().todos; track todo.id) {
+      <li>
+        @if (view().editingId === todo.id) {
+        <form
+          (ngSubmit)="todoUpdated.emit({ id: todo.id, input: { title: view().editTitle } })"
+        >
+          <label [for]="'edit-' + todo.id">Edit todo</label>
+          <div class="form-controls">
+            <input
+              [id]="'edit-' + todo.id"
+              name="editTitle"
+              [ngModel]="view().editTitle"
+              (ngModelChange)="editTitleChanged.emit($event)"
+              [maxlength]="titleMaxLength"
+              [disabled]="view().pending"
+              required
+            />
+            <ds-button
+              type="submit"
+              [disabled]="view().pending || !view().editTitle.trim()"
+              >Save</ds-button
+            >
+            <ds-button
+              variant="secondary"
+              [disabled]="view().pending"
+              (click)="editCancelled.emit()"
+              >Cancel</ds-button
+            >
+          </div>
+        </form>
+        } @else {
+        <span class="todo-title" [class.completed]="todo.completed"
+          >{{ todo.title }}</span
+        >
+        <div class="actions">
+          <ds-button
+            variant="secondary"
+            [disabled]="view().pending"
+            (click)="todoUpdated.emit({ id: todo.id, input: { completed: !todo.completed } })"
+            >{{ todo.completed ? 'Reopen' : 'Complete' }}</ds-button
+          >
+          <ds-button
+            variant="secondary"
+            [disabled]="view().pending"
+            (click)="editRequested.emit(todo)"
+            >Edit</ds-button
+          >
+          <ds-button
+            variant="secondary"
+            [disabled]="view().pending"
+            (click)="todoDeleted.emit(todo.id)"
+            >Delete</ds-button
+          >
+        </div>
+        }
+      </li>
+      } @empty {
+      <li class="empty">No todos yet. Add your first one above.</li>
+      }
+    </ul>
+    }
+  </section>
+</main>

@@ -1,0 +1,20 @@
+{
+  "name": "vega-dashboard-ui-dashboard",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vega/dashboard/ui/dashboard/src",
+  "prefix": "v",
+  "projectType": "library",
+  "tags": ["scope:vega", "type:ui"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p libs/vega/dashboard/ui/dashboard/tsconfig.lib.json",
+          "tsc --noEmit -p libs/vega/dashboard/ui/dashboard/tsconfig.spec.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}
