@@ -65,8 +65,8 @@ export const dashboardFeature = createFeature({
       todoAdapter.upsertOne(todo, {
         ...state,
         pending: false,
-        editingId: null,
-        editTitle: '',
+        editingId: state.editingId === todo.id ? null : state.editingId,
+        editTitle: state.editingId === todo.id ? '' : state.editTitle,
       }),
     ),
     on(api.deleted, (state, { id }) =>

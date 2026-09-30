@@ -69,6 +69,27 @@ describe('dashboard reducer', () => {
     });
   });
 
+  it('preserves the editor when another todo is updated', () => {
+    const other = { id: 'two', title: 'Other task', completed: false };
+    const state = {
+      ...initialState,
+      ids: ['one', 'two'],
+      entities: { one: todo, two: other },
+      editingId: 'one',
+      editTitle: 'Unsaved draft',
+      pending: true,
+    };
+    const updated = { ...other, completed: true };
+
+    const result = reducer(state, api.updated({ todo: updated }));
+
+    expect(result).toEqual({
+      ...state,
+      entities: { one: todo, two: updated },
+      pending: false,
+    });
+  });
+
   it('removes a todo after server confirmation', () => {
     const state = {
       ...initialState,
