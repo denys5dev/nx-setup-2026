@@ -3,7 +3,7 @@ import { DashboardApiModule } from './dashboard.module';
 import { DashboardController } from './dashboard.controller';
 
 describe('DashboardController', () => {
-  it('resolves its domain service through Nest injection', async () => {
+  it('when getSummary is called on the injected controller, should return the domain service summary', async () => {
     const module = await Test.createTestingModule({
       imports: [DashboardApiModule],
     }).compile();

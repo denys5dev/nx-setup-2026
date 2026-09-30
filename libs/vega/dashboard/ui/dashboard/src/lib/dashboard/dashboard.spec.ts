@@ -23,7 +23,7 @@ function render(overrides: Partial<DashboardView> = {}) {
 }
 
 describe('Dashboard', () => {
-  it('renders the supplied summary', () => {
+  it('when a summary is supplied, should render the summary', () => {
     const fixture = render();
 
     const element: HTMLElement = fixture.nativeElement;
@@ -33,7 +33,7 @@ describe('Dashboard', () => {
     );
   });
 
-  it('renders the supplied todo', () => {
+  it('when a todo is supplied, should render the todo', () => {
     const fixture = render();
 
     const element: HTMLElement = fixture.nativeElement;
@@ -43,7 +43,7 @@ describe('Dashboard', () => {
     );
   });
 
-  it('renders the supplied error', () => {
+  it('when an error is supplied, should render the error', () => {
     const fixture = render({ error: 'Unavailable' });
 
     const element: HTMLElement = fixture.nativeElement;
@@ -53,7 +53,7 @@ describe('Dashboard', () => {
     );
   });
 
-  it('emits create without changing the supplied draft', () => {
+  it('when the form is submitted, should emit the supplied draft', () => {
     const fixture = render({ newTitle: 'Draft' });
     const emitted = vi.fn();
     fixture.componentInstance.todoCreated.subscribe(emitted);

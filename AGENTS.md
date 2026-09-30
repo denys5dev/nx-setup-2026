@@ -21,3 +21,10 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+## Unit test naming
+
+- Name every unit test case (`it`, `test`, and parameterized variants) using `when <condition or action>, should <expected behavior>`. Use lowercase `when` and `should`, separated by a comma.
+- Example: `it('when getDepositCheck is called, should trigger getDepositCheck on the data service', () => { ... });`
+- Describe the actual setup or trigger and the behavior asserted by the test. Keep `describe` suite names focused on the class, function, or module under test.
+- Apply this convention when adding or updating unit tests.

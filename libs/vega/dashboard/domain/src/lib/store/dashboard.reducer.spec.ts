@@ -8,13 +8,13 @@ const todo = { id: 'one', title: 'Plan release', completed: false };
 const reducer = dashboardFeature.reducer;
 
 describe('dashboard reducer', () => {
-  it('returns the initial state for an unknown action', () => {
+  it('when an unknown action is received without state, should return the initial state', () => {
     const result = reducer(undefined, { type: 'unknown' });
 
     expect(result).toEqual(initialState);
   });
 
-  it('sets pending and clears the previous error when a request starts', () => {
+  it('when started is received, should set pending and clear the previous error', () => {
     const state = { ...initialState, error: 'Previous failure' };
 
     const result = reducer(state, api.started());
@@ -22,7 +22,7 @@ describe('dashboard reducer', () => {
     expect(result).toEqual({ ...state, pending: true, error: null });
   });
 
-  it('stores a loaded dashboard', () => {
+  it('when loaded is received, should store the dashboard', () => {
     const result = reducer(
       initialState,
       api.loaded({ message: 'Welcome', todos: [todo] }),
@@ -37,7 +37,7 @@ describe('dashboard reducer', () => {
     });
   });
 
-  it('clears the create draft only after server success', () => {
+  it('when created is received, should store the todo and clear the create draft', () => {
     const state = { ...initialState, newTitle: todo.title, pending: true };
 
     const result = reducer(state, api.created({ todo }));
@@ -49,7 +49,7 @@ describe('dashboard reducer', () => {
     });
   });
 
-  it('updates the todo and closes the editor after server success', () => {
+  it('when updated is received for the edited todo, should update the todo and close the editor', () => {
     const state = {
       ...initialState,
       ids: ['one'],
@@ -69,7 +69,7 @@ describe('dashboard reducer', () => {
     });
   });
 
-  it('preserves the editor when another todo is updated', () => {
+  it('when updated is received for another todo, should preserve the editor', () => {
     const other = { id: 'two', title: 'Other task', completed: false };
     const state = {
       ...initialState,
@@ -90,7 +90,7 @@ describe('dashboard reducer', () => {
     });
   });
 
-  it('removes a todo after server confirmation', () => {
+  it('when deleted is received, should remove the todo', () => {
     const state = {
       ...initialState,
       ids: ['one'],
@@ -103,7 +103,7 @@ describe('dashboard reducer', () => {
     expect(result).toEqual(initialState);
   });
 
-  it('preserves data and drafts when a request fails', () => {
+  it('when failed is received, should preserve data and drafts and store the error', () => {
     const state = {
       ...initialState,
       ids: ['one'],
@@ -119,7 +119,7 @@ describe('dashboard reducer', () => {
     expect(result).toEqual({ ...state, pending: false, error: 'Unavailable' });
   });
 
-  it('keeps the draft while create is requested', () => {
+  it('when create is received, should preserve the draft', () => {
     const state = { ...initialState, newTitle: 'Draft' };
 
     const result = reducer(state, page.create({ title: 'Draft' }));
@@ -127,7 +127,7 @@ describe('dashboard reducer', () => {
     expect(result).toBe(state);
   });
 
-  it('opens the editor with the selected title', () => {
+  it('when edit is received, should open the editor with the selected title', () => {
     const result = reducer(initialState, page.edit({ todo }));
 
     expect(result).toEqual({
@@ -137,7 +137,7 @@ describe('dashboard reducer', () => {
     });
   });
 
-  it('clears the editor on cancel', () => {
+  it('when cancelEdit is received, should clear the editor', () => {
     const state = { ...initialState, editingId: 'one', editTitle: 'Draft' };
 
     const result = reducer(state, page.cancelEdit());
@@ -145,7 +145,7 @@ describe('dashboard reducer', () => {
     expect(result).toEqual(initialState);
   });
 
-  it('stores the new todo draft', () => {
+  it('when newTitleChanged is received, should store the new todo draft', () => {
     const result = reducer(
       initialState,
       page.newTitleChanged({ title: 'Draft' }),
@@ -154,7 +154,7 @@ describe('dashboard reducer', () => {
     expect(result.newTitle).toBe('Draft');
   });
 
-  it('stores the edit draft', () => {
+  it('when editTitleChanged is received, should store the edit draft', () => {
     const result = reducer(
       initialState,
       page.editTitleChanged({ title: 'Draft' }),

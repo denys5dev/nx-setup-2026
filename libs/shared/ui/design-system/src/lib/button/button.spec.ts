@@ -13,7 +13,7 @@ describe('Button', () => {
     await fixture.whenStable();
   });
 
-  it('renders a native disabled button', () => {
+  it('when disabled is true, should render a disabled native button', () => {
     fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
 

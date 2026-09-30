@@ -9,13 +9,13 @@ describe('DashboardService', () => {
     service = new DashboardService(new TodoRepository());
   });
 
-  it('returns the summary', () => {
+  it('when getSummary is called, should return the summary', () => {
     const result = service.getSummary();
 
     expect(result).toEqual({ message: 'Welcome to Sirius' });
   });
 
-  it('reads a created todo', () => {
+  it('when getTodo is called for a created todo, should return the todo', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     const result = service.getTodo(todo.id);
@@ -23,7 +23,7 @@ describe('DashboardService', () => {
     expect(result).toEqual(todo);
   });
 
-  it('lists created todos', () => {
+  it('when listTodos is called, should return created todos', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     const result = service.listTodos();
@@ -31,7 +31,7 @@ describe('DashboardService', () => {
     expect(result).toEqual([todo]);
   });
 
-  it('returns a copy of stored data', () => {
+  it('when getTodo is called, should return a copy of stored data', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     const result = service.getTodo(todo.id);
@@ -39,7 +39,7 @@ describe('DashboardService', () => {
     expect(result).not.toBe(todo);
   });
 
-  it('renames a todo', () => {
+  it('when updateTodo is called with a title, should rename the todo', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     const result = service.updateTodo(todo.id, { title: 'Ship' });
@@ -47,7 +47,7 @@ describe('DashboardService', () => {
     expect(result).toEqual({ ...todo, title: 'Ship' });
   });
 
-  it('completes a todo', () => {
+  it('when updateTodo is called with completed as true, should complete the todo', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     const result = service.updateTodo(todo.id, { completed: true });
@@ -55,7 +55,7 @@ describe('DashboardService', () => {
     expect(result.completed).toBe(true);
   });
 
-  it('reopens a todo', () => {
+  it('when updateTodo is called with completed as false, should reopen the todo', () => {
     const todo = service.createTodo({ title: 'Plan' });
     service.updateTodo(todo.id, { completed: true });
 
@@ -64,7 +64,7 @@ describe('DashboardService', () => {
     expect(result.completed).toBe(false);
   });
 
-  it('deletes a todo', () => {
+  it('when deleteTodo is called, should remove the todo', () => {
     const todo = service.createTodo({ title: 'Plan' });
 
     service.deleteTodo(todo.id);
@@ -72,19 +72,19 @@ describe('DashboardService', () => {
     expect(service.listTodos()).toEqual([]);
   });
 
-  it('rejects getTodo for a missing todo', () => {
+  it('when getTodo is called for a missing todo, should throw NotFoundException', () => {
     const act = () => service.getTodo('missing');
 
     expect(act).toThrow(NotFoundException);
   });
 
-  it('rejects updateTodo for a missing todo', () => {
+  it('when updateTodo is called for a missing todo, should throw NotFoundException', () => {
     const act = () => service.updateTodo('missing', { title: 'Gone' });
 
     expect(act).toThrow(NotFoundException);
   });
 
-  it('rejects deleteTodo for a missing todo', () => {
+  it('when deleteTodo is called for a missing todo, should throw NotFoundException', () => {
     const act = () => service.deleteTodo('missing');
 
     expect(act).toThrow(NotFoundException);

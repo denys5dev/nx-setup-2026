@@ -41,7 +41,7 @@ function render() {
 }
 
 describe('DashboardPage', () => {
-  it('requests the dashboard on entry', () => {
+  it('when DashboardPage is rendered, should request the dashboard', () => {
     const { dispatch } = render();
 
     expect(dispatch).toHaveBeenCalledWith(DashboardPageActions.load());
@@ -91,15 +91,18 @@ describe('DashboardPage', () => {
       (ui: Dashboard) => ui.todoDeleted.emit(todo.id),
       DashboardPageActions.delete({ id: todo.id }),
     ],
-  ] as const)('maps the %s intention to a store action', (_, emit, action) => {
-    const { fixture, dispatch } = render();
-    const ui: Dashboard = fixture.debugElement.query(
-      By.directive(Dashboard),
-    ).componentInstance;
-    dispatch.mockClear();
+  ] as const)(
+    'when the %s intention is emitted, should dispatch the corresponding store action',
+    (_, emit, action) => {
+      const { fixture, dispatch } = render();
+      const ui: Dashboard = fixture.debugElement.query(
+        By.directive(Dashboard),
+      ).componentInstance;
+      dispatch.mockClear();
 
-    emit(ui);
+      emit(ui);
 
-    expect(dispatch.mock.calls).toEqual([[action]]);
-  });
+      expect(dispatch.mock.calls).toEqual([[action]]);
+    },
+  );
 });

@@ -48,7 +48,7 @@ describe('DashboardEffects', () => {
 
   afterEach(() => subscription.unsubscribe());
 
-  it('loads summary and todos', () => {
+  it('when load is dispatched, should emit the loaded summary and todos', () => {
     actions.next(page.load());
 
     expect(received).toEqual([
@@ -57,19 +57,19 @@ describe('DashboardEffects', () => {
     ]);
   });
 
-  it('creates a todo', () => {
+  it('when create is dispatched, should emit the created todo', () => {
     actions.next(page.create({ title: 'Plan' }));
 
     expect(received).toEqual([api.started(), api.created({ todo })]);
   });
 
-  it('trims the new title before transport', () => {
+  it('when create is dispatched with surrounding whitespace, should pass the trimmed title to the data service', () => {
     actions.next(page.create({ title: ' Plan ' }));
 
     expect(data.createTodo).toHaveBeenCalledWith({ title: 'Plan' });
   });
 
-  it('updates a todo', () => {
+  it('when update is dispatched, should emit the updated todo', () => {
     actions.next(page.update({ id: 'one', input: { completed: true } }));
 
     expect(received).toEqual([
@@ -78,19 +78,19 @@ describe('DashboardEffects', () => {
     ]);
   });
 
-  it('passes the update id and input to infrastructure', () => {
+  it('when update is dispatched, should pass the id and input to the data service', () => {
     actions.next(page.update({ id: 'one', input: { completed: false } }));
 
     expect(data.updateTodo).toHaveBeenCalledWith('one', { completed: false });
   });
 
-  it('deletes a todo', () => {
+  it('when delete is dispatched, should emit the deleted todo id', () => {
     actions.next(page.delete({ id: 'one' }));
 
     expect(received).toEqual([api.started(), api.deleted({ id: 'one' })]);
   });
 
-  it('reports a failed request', () => {
+  it('when creating a todo fails, should emit a request failure', () => {
     data.createTodo.mockReturnValue(throwError(() => new Error('Offline')));
 
     actions.next(page.create({ title: 'Plan' }));
@@ -101,7 +101,7 @@ describe('DashboardEffects', () => {
     ]);
   });
 
-  it('continues listening after a failure', () => {
+  it('when create is dispatched after a failure, should emit the created todo', () => {
     data.createTodo.mockReturnValueOnce(throwError(() => new Error('Offline')));
     actions.next(page.create({ title: 'Plan' }));
     received.length = 0;
@@ -111,7 +111,7 @@ describe('DashboardEffects', () => {
     expect(received).toEqual([api.started(), api.created({ todo })]);
   });
 
-  it('ignores overlapping requests while the dashboard is busy', () => {
+  it('when a request is pending, should ignore overlapping requests', () => {
     const response = new Subject<Todo[]>();
     data.getTodos.mockReturnValue(response);
     actions.next(page.load());

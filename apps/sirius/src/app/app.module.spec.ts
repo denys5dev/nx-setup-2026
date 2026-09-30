@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from './app.module';
 
 describe('AppModule', () => {
-  it('composes the dashboard dependencies', async () => {
+  it('when AppModule is initialized, should compose the dashboard dependencies', async () => {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

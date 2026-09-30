@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
-  it('provides the route outlet', async () => {
+  it('when App is rendered, should provide the route outlet', async () => {
     TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([])],

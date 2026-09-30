@@ -20,7 +20,7 @@ describe('DashboardDataService', () => {
 
   afterEach(() => http.verify());
 
-  it('loads the summary', () => {
+  it('when getSummary is subscribed to, should fetch the summary', () => {
     const received = vi.fn();
 
     data.getSummary().subscribe(received);
@@ -31,7 +31,7 @@ describe('DashboardDataService', () => {
     expect(received).toHaveBeenCalledWith({ message: 'Welcome' });
   });
 
-  it('loads todos', () => {
+  it('when getTodos is subscribed to, should fetch todos', () => {
     const received = vi.fn();
 
     data.getTodos().subscribe(received);
@@ -40,7 +40,7 @@ describe('DashboardDataService', () => {
     expect(received).toHaveBeenCalledWith([]);
   });
 
-  it('posts the create input', () => {
+  it('when createTodo is subscribed to, should post the create input', () => {
     const input = { title: 'Plan' };
 
     data.createTodo(input).subscribe();
@@ -53,7 +53,7 @@ describe('DashboardDataService', () => {
     expect(request.request.body).toEqual(input);
   });
 
-  it('patches the update input', () => {
+  it('when updateTodo is subscribed to, should patch the update input', () => {
     const input = { completed: false };
 
     data.updateTodo('one', input).subscribe();
@@ -66,7 +66,7 @@ describe('DashboardDataService', () => {
     expect(request.request.body).toEqual(input);
   });
 
-  it('deletes by id', () => {
+  it('when deleteTodo is subscribed to, should delete the todo by id', () => {
     const received = vi.fn();
 
     data.deleteTodo('one').subscribe(received);

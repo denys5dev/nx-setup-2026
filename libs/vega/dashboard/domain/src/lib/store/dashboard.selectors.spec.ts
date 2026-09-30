@@ -18,19 +18,19 @@ const state = {
 };
 
 describe('dashboard selectors', () => {
-  it('selects todos in entity order', () => {
+  it('when selectTodos is called, should return todos in entity order', () => {
     const result = selectTodos(state);
 
     expect(result).toEqual(todos);
   });
 
-  it('counts only incomplete todos', () => {
+  it('when selectRemaining is called, should count only incomplete todos', () => {
     const result = selectRemaining(state);
 
     expect(result).toBe(1);
   });
 
-  it('builds the presentation model', () => {
+  it('when selectDashboardView is called, should return the presentation model', () => {
     const result = selectDashboardView(state);
 
     expect(result).toEqual({
