@@ -1,0 +1,20 @@
+{
+  "name": "sirius-dashboard-domain",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/sirius/dashboard/domain/src",
+  "projectType": "library",
+  "tags": ["scope:sirius", "type:domain"],
+  "// targets": "to see all targets run: nx show project sirius-dashboard-domain --web",
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p libs/sirius/dashboard/domain/tsconfig.lib.json",
+          "tsc --noEmit -p libs/sirius/dashboard/domain/tsconfig.spec.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

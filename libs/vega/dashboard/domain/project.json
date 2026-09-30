@@ -1,0 +1,33 @@
+{
+  "name": "vega-dashboard-domain",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vega/dashboard/domain/src",
+  "prefix": "v",
+  "projectType": "library",
+  "tags": ["scope:vega", "type:domain"],
+  "targets": {
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p libs/vega/dashboard/domain/tsconfig.lib.json",
+          "tsc --noEmit -p libs/vega/dashboard/domain/tsconfig.spec.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

@@ -1,109 +1,202 @@
-# New Nx Repository
+# Celestial
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
-
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
-
-[Learn more about this workspace setup and its capabilities](https://nx.dev/docs/technologies/typescript/introduction?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/get-started). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
-
-## Generate a library
+Angular frontend **Vega** and NestJS backend **Sirius**, generated with Nx.
+Use Node 24.15+ (24.x) and pnpm 12.8.1 (pinned in `package.json`).
+Run `nvm use` when using nvm.
 
 ```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+pnpm install
+pnpm prepare             # activate Git hooks after the first install
+pnpm nx serve vega         # starts Vega :4200 and Sirius :3000
+pnpm nx serve sirius       # backend only, when needed
 ```
 
-## Run tasks
-
-To build the library use:
+Vega redirects `/` to `/dashboard` and loads a summary and todo CRUD example from Sirius.
+Its development server proxies `/api/**` to port 3000. Configure the same
+reverse proxy in production; the development proxy is not part of the build.
 
 ```sh
-npx nx run pkg1:build
+pnpm nx run-many -t build lint typecheck test
+pnpm exec playwright install chromium
+pnpm nx e2e vega-e2e
+pnpm nx graph
 ```
 
-To run any task with Nx use:
+Playwright starts both apps and checks the browser page and HTTP API.
+Unit tests use Vitest throughout: Angular's native runner for Vega, Nx's Analog
+integration for non-buildable Angular libraries, and `@nx/vitest` for Nest.
+See [Nx's Vitest documentation](https://nx.dev/docs/technologies/test-tools/vitest/introduction).
+
+## Structure
+
+```text
+apps/
+  vega/                       bootstrap, providers, root outlet, routes
+  sirius/                     bootstrap, root module
+  vega-e2e/                   full-stack Playwright tests
+libs/
+  sirius/dashboard/
+    api/src/lib/
+      dashboard.controller.ts
+      todo.controller.ts
+      todo.dto.ts
+      dashboard.module.ts
+    domain/src/lib/
+      dashboard.module.ts
+      application/dashboard.service.ts
+      infrastructure/todo.repository.ts
+  vega/dashboard/
+    feature/src/lib/
+      dashboard.routes.ts     lazy feature registration
+      dashboard-page.ts       store connection
+      dashboard.ts            stateless view (HTML + SCSS)
+    domain/src/lib/
+      dashboard.providers.ts
+      store/                  actions, reducer, selectors, effects
+      infrastructure/dashboard.data.service.ts
+  shared/dashboard/contracts/ framework-free HTTP types
+  shared/ui/design-system/    SCSS components and Storybook
+```
+
+Application code lives in libraries; apps compose it. Configuration, static
+assets, global styles, and bootstrap tests also belong with their apps.
+Nx project identifiers include scope and layer (`sirius-dashboard-api`) because
+they must be unique across the workspace. Source filenames do not repeat that
+prefix. Module classes distinguish API and domain to make composition readable.
+
+## Architecture and imports
+
+This follows the reference project's API/domain and feature/domain split.
+Internal libraries are non-buildable: each application's bundler compiles its
+dependencies. Nx tags and ESLint enforce frontend/backend separation and these
+layer dependencies:
+
+```text
+Sirius app → dashboard/api → dashboard/domain
+Vega app  → dashboard/feature (lazy) → dashboard/domain
+```
+
+Use named exports in each library's `src/index.ts` for its small public API.
+Use direct relative imports inside that library, never its own barrel. Import
+other libraries through their public aliases; do not deep-import their files.
+There are no umbrella barrels or nested folder barrels. Keep the dashboard
+feature import dynamic so it stays in a separate route chunk.
+
+Barrels do not automatically prevent tree shaking. Side effects, eager imports,
+and overly broad public APIs cause trouble. Export only what consumers need,
+use `export type` for types, and keep infrastructure implementations private.
+
+The `domain` name follows the reference's pragmatic usage: it includes application
+services and infrastructure, so it is not a framework-free DDD domain. Add
+`entities/` and reusable `ui/`
+only when real behavior needs them. Empty repositories, interfaces, stores, and
+one-project-per-class boundaries would add maintenance now.
+
+If business rules become substantial, separate a pure domain from application
+orchestration and infrastructure, and enforce those dependencies as separate Nx
+projects. Folders alone do not enforce dependency direction within a library.
+Shared API contracts live in `shared/dashboard/contracts`; never import
+Nest services or persistence models into Vega.
+
+The workspace uses Nx's integrated TypeScript path setup because the Angular
+generator does not support the initial TypeScript solution/project-reference
+setup. Aliases are generated by Nx. pnpm manages the root dependency manifest;
+these internal libraries are not independently published packages.
+
+## Generate another feature
 
 ```sh
-npx nx run <project-name>:<target>
+pnpm nx g @nx/nest:library libs/sirius/orders/domain --name=sirius-orders-domain --importPath=@celestial/sirius/orders/domain --unitTestRunner=vitest --tags=scope:sirius,type:domain --no-interactive
+pnpm nx g @nx/nest:library libs/sirius/orders/api --name=sirius-orders-api --importPath=@celestial/sirius/orders/api --unitTestRunner=vitest --tags=scope:sirius,type:api --no-interactive
+pnpm nx g @nx/angular:library libs/vega/orders/feature --name=vega-orders-feature --importPath=@celestial/vega/orders/feature --unitTestRunner=vitest-analog --tags=scope:vega,type:feature --no-interactive
 ```
 
-These targets are either [inferred automatically](https://nx.dev/docs/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+Keep generated source names short (`orders.controller.ts`, `orders.ts`). Add
+infrastructure and UI libraries when the feature actually needs those boundaries.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/docs/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Frontend layers
 
-## Versioning and releasing
+`DashboardPage` connects NgRx Store to the stateless `Dashboard` view. The view
+receives a model and emits typed page actions; it owns no store, HTTP calls, or
+mutable state. `Store.selectSignal` reads the Redux store; it is not SignalStore.
 
-To version and release the library use
+The domain library owns:
 
-```
-npx nx release
-```
+- `store/dashboard.actions.ts`: page intentions and API outcomes.
+- `store/dashboard.reducer.ts`: normalized todos plus loading, error, and editor state.
+- `store/dashboard.selectors.ts`: derived counts and the view model.
+- `store/dashboard.effects.ts`: asynchronous CRUD orchestration and error recovery.
+- `infrastructure/dashboard.data.service.ts`: HTTP methods and endpoint URLs.
+- `dashboard.providers.ts`: feature state/effect registration, consumed by the lazy route.
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+`provideStore()` is registered once in Vega. The feature registers through its
+lazy routes, following [Nx's standalone feature registration pattern](https://nx.dev/blog/using-ngrx-standalone-apis-with-nx)
+with the current `ngrx-feature-store` generator and NgRx 22 APIs.
+[Angular recommends presentation-focused components](https://angular.dev/style-guide);
+[NgRx Effects isolate asynchronous work](https://ngrx.io/guide/effects).
 
-[Learn more about Nx release &raquo;](https://nx.dev/docs/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This follows the reference project's domain/store and domain/infrastructure
+layout. Add `application/` services when there are reusable workflows or business
+rules beyond effect orchestration. Avoid a service that only forwards every HTTP
+method. API contracts are shared; frontend view models and state stay frontend-only.
 
-## Keep TypeScript project references up to date
+The reducer keeps editor drafts to make this example's view stateless. A reusable
+form may instead own ephemeral form state; moving every focus/hover interaction
+into the global store would add noise. Drafts and loaded state survive route
+re-entry during the current app session. Refreshing the browser resets frontend
+state and reloads the server data.
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+Effects allow one request at a time across load and mutations so an older load
+cannot overwrite a successful mutation. Controls are disabled while pending.
+Mutations update entities only on server confirmation; failures retain drafts and
+existing data. Add per-operation concurrency when parallel editing is needed.
+ESLint rejects direct HTTP imports from feature, application, and store code.
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+Sirius validates requests in `api`, executes CRUD in the domain application
+service, and stores data in the infrastructure repository. The example repository
+is process-local memory: it resets on backend restart and is not shared across
+instances. Replace it with database persistence before relying on durable data.
+
+| Endpoint                          | Operation                               |
+| --------------------------------- | --------------------------------------- |
+| `GET /api/dashboard`              | Summary                                 |
+| `GET /api/dashboard/todos`        | List todos                              |
+| `GET /api/dashboard/todos/:id`    | Read a todo                             |
+| `POST /api/dashboard/todos`       | Create (`title`)                        |
+| `PATCH /api/dashboard/todos/:id`  | Rename or toggle (`title`, `completed`) |
+| `DELETE /api/dashboard/todos/:id` | Delete                                  |
+
+## Test style
+
+Unit tests cover one behavior per test with one assertion, using blank lines to
+separate arrange, act, and assert. Parameterized tests are appropriate for the
+same rule over several inputs. Reducers, selectors, effects, and presentation are
+tested independently. Playwright scenarios exercise complete user journeys and
+therefore may contain several assertions.
+
+## Design system
 
 ```sh
-npx nx sync
+pnpm nx storybook design-system
+pnpm nx build-storybook design-system
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+Use `v-` selectors for Vega and `ds-` for the shared design system. Components use
+matching `.ts`, `.html`, and `.scss` filenames. Angular 22 defaults to OnPush.
 
-```sh
-npx nx sync:check
+## Commits
+
+Husky runs commitlint on `commit-msg`. Use Conventional Commits, for example:
+
+```text
+feat(vega): add dashboard filters
+fix(sirius): handle missing dashboard data
+chore: update dependencies
+feat(api)!: change dashboard response
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/docs/features/ci-features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/docs/features/ci-features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/docs/features/ci-features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/docs/features/ci-features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/docs/features/ci-features?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/docs/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## 🔗 Learn More
-
-- [Nx Documentation](https://nx.dev/docs)
-- [Crafting Your Workspace Tutorial](https://nx.dev/docs/getting-started/tutorials/crafting-your-workspace)
-- [Module Boundaries](https://nx.dev/docs/features/enforce-module-boundaries)
-- [Releasing Packages](https://nx.dev/docs/features/manage-releases)
-- [Nx Plugins](https://nx.dev/docs/concepts/nx-plugins)
-- [Nx Cloud](https://nx.dev/nx-cloud)
-
-## 💬 Community
-
-Join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [X (Twitter)](https://twitter.com/nxdevtools)
-- [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [YouTube](https://www.youtube.com/@nxdevtools)
-- [Blog](https://nx.dev/blog)
+The conventional commitlint preset defines the accepted types; scopes are optional.
+See https://www.conventionalcommits.org/en/v1.0.0/. `pnpm prepare` activates hooks
+in a fresh checkout. Pull request CI also checks commit messages, including when
+local hooks were skipped. Make the CI job required in branch protection to enforce
+it before merging.

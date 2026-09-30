@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
     "lib": ["es2022"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -16,8 +13,32 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@org/source"],
     "noUncheckedSideEffectImports": false,
-    "types": ["*"]
+    "baseUrl": ".",
+    "paths": {
+      "@celestial/sirius/dashboard/domain": [
+        "./libs/sirius/dashboard/domain/src/index.ts"
+      ],
+      "@celestial/sirius/dashboard/api": [
+        "./libs/sirius/dashboard/api/src/index.ts"
+      ],
+      "@celestial/vega/dashboard/feature": [
+        "./libs/vega/dashboard/feature/src/index.ts"
+      ],
+      "@celestial/vega/dashboard/domain": [
+        "./libs/vega/dashboard/domain/src/index.ts"
+      ],
+      "@celestial/shared/ui/design-system": [
+        "./libs/shared/ui/design-system/src/index.ts"
+      ],
+      "@celestial/shared/dashboard/contracts": [
+        "./libs/shared/dashboard/contracts/src/index.ts"
+      ]
+    },
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "ignoreDeprecations": "6.0",
+    "rootDir": "."
   }
 }

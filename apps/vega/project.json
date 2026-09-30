@@ -1,0 +1,106 @@
+{
+  "name": "vega",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "v",
+  "sourceRoot": "apps/vega/src",
+  "tags": ["scope:vega", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/vega",
+        "browser": "apps/vega/src/main.ts",
+        "tsConfig": "apps/vega/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/vega/public"
+          }
+        ],
+        "styles": ["apps/vega/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "dependsOn": ["sirius:serve"],
+      "options": {
+        "proxyConfig": "apps/vega/proxy.conf.json"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "vega:build:production"
+        },
+        "development": {
+          "buildTarget": "vega:build:development"
+        }
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "vega:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/vega/browser",
+        "spa": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p apps/vega/tsconfig.app.json",
+          "tsc --noEmit -p apps/vega/tsconfig.spec.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

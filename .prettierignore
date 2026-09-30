@@ -4,3 +4,6 @@
 /.nx/cache
 /.nx/workspace-data
 .nx/self-healing
+.angular
+
+.pnpm-store/

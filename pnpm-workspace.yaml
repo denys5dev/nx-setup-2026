@@ -1,0 +1,13 @@
+packages:
+  - 'apps/*'
+  - 'libs/**'
+  - 'packages/*'
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  nx: true
+  unrs-resolver: true
+  esbuild: true
+  '@nestjs/core': true
+  lmdb: true
+  msgpackr-extract: true
