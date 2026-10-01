@@ -19,10 +19,13 @@ export default [
             {
               sourceTag: 'scope:vega',
               onlyDependOnLibsWithTags: ['scope:vega', 'scope:shared'],
+              bannedExternalImports: ['@nestjs/*'],
             },
             {
               sourceTag: 'scope:sirius',
               onlyDependOnLibsWithTags: ['scope:sirius', 'scope:shared'],
+              notDependOnLibsWithTags: ['type:ui', 'type:feature'],
+              bannedExternalImports: ['@angular/*', '@ngrx/*'],
             },
             {
               sourceTag: 'scope:shared',
@@ -59,6 +62,7 @@ export default [
               sourceTag: 'type:ui',
               onlyDependOnLibsWithTags: ['type:ui', 'type:util'],
               bannedExternalImports: [
+                '@nestjs/*',
                 '@ngrx/*',
                 '@angular/common/http',
                 '@angular/common/http/*',
@@ -67,6 +71,7 @@ export default [
             {
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: ['type:util'],
+              bannedExternalImports: ['@angular/*', '@ngrx/*', '@nestjs/*'],
             },
           ],
         },

@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { TodoRepository } from '../infrastructure/todo.repository';
 
-describe('DashboardService', () => {
+describe(DashboardService.name, () => {
   let service: DashboardService;
 
   beforeEach(() => {

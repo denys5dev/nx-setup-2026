@@ -40,7 +40,7 @@ function render() {
   return { fixture, dispatch };
 }
 
-describe('DashboardPage', () => {
+describe(DashboardPage.name, () => {
   it('when DashboardPage is rendered, should request the dashboard', () => {
     const { dispatch } = render();
 

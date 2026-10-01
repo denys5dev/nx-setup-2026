@@ -12,7 +12,7 @@ import {
 
 const todo = { id: 'one', title: 'Plan', completed: false };
 
-describe('DashboardEffects', () => {
+describe(DashboardEffects.name, () => {
   let actions: Subject<Action>;
   let received: Action[];
   let subscription: Subscription;

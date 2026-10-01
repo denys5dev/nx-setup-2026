@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { DashboardApiModule } from './dashboard.module';
 import { DashboardController } from './dashboard.controller';
 
-describe('DashboardController', () => {
+describe(DashboardController.name, () => {
   it('when getSummary is called on the injected controller, should return the domain service summary', async () => {
     const module = await Test.createTestingModule({
       imports: [DashboardApiModule],

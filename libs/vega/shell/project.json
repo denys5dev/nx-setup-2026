@@ -9,7 +9,10 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["tsc --noEmit -p libs/vega/shell/tsconfig.lib.json"],
+        "commands": [
+          "tsc --noEmit -p libs/vega/shell/tsconfig.lib.json",
+          "tsc --noEmit -p libs/vega/shell/tsconfig.spec.json"
+        ],
         "parallel": false
       }
     }

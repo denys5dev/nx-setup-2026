@@ -82,6 +82,9 @@ Apps may import only shell libraries. Shells compose shells, features, API,
 domain, UI and utilities. Features depend on domain, UI and utilities; UI cannot
 import domain, NgRx or HTTP. Scope tags also prevent Vega/Sirius cross-imports.
 These rules apply to library public APIs, with ESLint enforcing the dependencies.
+ESLint also rejects NestJS imports in Vega and UI libraries, Angular/NgRx imports
+in Sirius, and all three frameworks in utilities/contracts. Sirius cannot depend
+on UI or feature libraries. Playwright runs import-boundary regression checks.
 
 Use named exports in each library's `src/index.ts` for its small public API.
 Use direct relative imports inside that library, never its own barrel. Import

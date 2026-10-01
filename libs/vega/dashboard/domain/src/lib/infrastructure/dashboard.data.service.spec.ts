@@ -6,7 +6,7 @@ import {
 } from '@angular/common/http/testing';
 import { DashboardDataService } from './dashboard.data.service';
 
-describe('DashboardDataService', () => {
+describe(DashboardDataService.name, () => {
   let data: DashboardDataService;
   let http: HttpTestingController;
 

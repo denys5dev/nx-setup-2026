@@ -4,6 +4,14 @@
   "projectType": "application",
   "sourceRoot": "apps/vega-e2e/src",
   "implicitDependencies": ["vega", "sirius"],
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals",
+      "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/libs/**/eslint.config.mjs"
+    ]
+  },
   "// targets": "to see all targets run: nx show project vega-e2e --web",
   "targets": {
     "typecheck": {

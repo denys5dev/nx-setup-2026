@@ -7,7 +7,7 @@ import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
 import { appConfig } from './app.config';
 
-describe('App', () => {
+describe(App.name, () => {
   it('when the root route is opened, should render the dashboard inside the Vega shell', async () => {
     TestBed.configureTestingModule({
       imports: [App],

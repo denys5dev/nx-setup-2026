@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Button } from './button';
 
-describe('Button', () => {
+describe(Button.name, () => {
   let fixture: ComponentFixture<Button>;
 
   beforeEach(async () => {
