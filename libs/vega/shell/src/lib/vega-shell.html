@@ -1,1 +1,22 @@
-<router-outlet></router-outlet>
+<div class="vega-shell">
+  <header class="vega-shell__header">
+    <a class="vega-shell__brand" href="/" aria-label="Vega home">
+      <span class="vega-shell__mark" aria-hidden="true">V</span>
+      Vega
+    </a>
+    <ds-button
+      variant="secondary"
+      (click)="toggleTheme()"
+      [pressed]="theme() === 'dark'"
+      aria-label="Dark theme"
+    >
+      <span class="vega-shell__theme-icon" aria-hidden="true"
+        >{{ theme() === 'dark' ? '☾' : '☀' }}</span
+      >
+      Dark theme
+    </ds-button>
+  </header>
+  <div class="vega-shell__content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

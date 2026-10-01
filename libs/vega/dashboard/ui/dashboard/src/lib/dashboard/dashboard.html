@@ -1,18 +1,22 @@
-<main>
-  <header>
+<main class="dashboard">
+  <header class="dashboard__header">
     <h1>Dashboard</h1>
-    <p role="status">
+    <p class="dashboard__status" role="status">
       @if (view().pending) { {{ view().loaded ? 'Updating dashboard…' : 'Loading
       dashboard…' }} } @else { {{ view().message }} }
     </p>
   </header>
 
   @if (view().error; as error) {
-  <p role="alert">{{ error }}</p>
+  <p class="dashboard__error" role="alert">{{ error }}</p>
   }
 
-  <section aria-labelledby="todos-heading" [attr.aria-busy]="view().pending">
-    <div class="section-header">
+  <section
+    class="dashboard__panel"
+    aria-labelledby="todos-heading"
+    [attr.aria-busy]="view().pending"
+  >
+    <div class="dashboard__section-header">
       <h2 id="todos-heading">Todos</h2>
       <ds-button
         variant="secondary"
@@ -21,10 +25,14 @@
         >Refresh</ds-button
       >
     </div>
-    <form (ngSubmit)="todoCreated.emit(view().newTitle)">
+    <form
+      class="dashboard__form"
+      (ngSubmit)="todoCreated.emit(view().newTitle)"
+    >
       <label for="new-todo">New todo</label>
-      <div class="form-controls">
+      <div class="dashboard__form-controls">
         <input
+          class="dashboard__input"
           id="new-todo"
           name="newTodo"
           [ngModel]="view().newTitle"
@@ -42,17 +50,21 @@
     </form>
 
     @if (view().loaded) {
-    <p>{{ view().remaining }} remaining of {{ view().todos.length }}</p>
-    <ul aria-label="Todos">
+    <p class="dashboard__summary">
+      {{ view().remaining }} remaining of {{ view().todos.length }}
+    </p>
+    <ul class="dashboard__list" aria-label="Todos">
       @for (todo of view().todos; track todo.id) {
-      <li>
+      <li class="dashboard__todo">
         @if (view().editingId === todo.id) {
         <form
+          class="dashboard__form dashboard__form--edit"
           (ngSubmit)="todoUpdated.emit({ id: todo.id, input: { title: view().editTitle } })"
         >
           <label [for]="'edit-' + todo.id">Edit todo</label>
-          <div class="form-controls">
+          <div class="dashboard__form-controls">
             <input
+              class="dashboard__input"
               [id]="'edit-' + todo.id"
               name="editTitle"
               [ngModel]="view().editTitle"
@@ -75,10 +87,12 @@
           </div>
         </form>
         } @else {
-        <span class="todo-title" [class.completed]="todo.completed"
+        <span
+          class="dashboard__todo-title"
+          [class.dashboard__todo-title--completed]="todo.completed"
           >{{ todo.title }}</span
         >
-        <div class="actions">
+        <div class="dashboard__actions">
           <ds-button
             variant="secondary"
             [disabled]="view().pending"
@@ -101,7 +115,7 @@
         }
       </li>
       } @empty {
-      <li class="empty">No todos yet. Add your first one above.</li>
+      <li class="dashboard__empty">No todos yet. Add your first one above.</li>
       }
     </ul>
     }

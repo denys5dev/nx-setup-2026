@@ -22,7 +22,7 @@ function render(overrides: Partial<DashboardView> = {}) {
   return fixture;
 }
 
-describe('Dashboard', () => {
+describe(Dashboard.name, () => {
   it('when a summary is supplied, should render the summary', () => {
     const fixture = render();
 
@@ -38,9 +38,9 @@ describe('Dashboard', () => {
 
     const element: HTMLElement = fixture.nativeElement;
 
-    expect(element.querySelector('.todo-title')?.textContent).toContain(
-      'Plan release',
-    );
+    expect(
+      element.querySelector('.dashboard__todo-title')?.textContent,
+    ).toContain('Plan release');
   });
 
   it('when an error is supplied, should render the error', () => {

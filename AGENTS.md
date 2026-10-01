@@ -24,7 +24,15 @@
 
 ## Unit test naming
 
+- Use the tested class name for class suites, for example `describe(Dashboard.name, () => { ... })`.
+
 - Name every unit test case (`it`, `test`, and parameterized variants) using `when <condition or action>, should <expected behavior>`. Use lowercase `when` and `should`, separated by a comma.
 - Example: `it('when getDepositCheck is called, should trigger getDepositCheck on the data service', () => { ... });`
 - Describe the actual setup or trigger and the behavior asserted by the test. Keep `describe` suite names focused on the class, function, or module under test.
 - Apply this convention when adding or updating unit tests.
+
+## Angular version
+
+- This workspace uses Angular 22. Follow Angular 22 APIs and defaults.
+- `OnPush` change detection is the default in Angular 22; do not add redundant `changeDetection: ChangeDetectionStrategy.OnPush` declarations or imports.
+- Use NgRx for application state management, including shared UI state such as the theme. Components select state and dispatch actions; reducers handle state changes and effects handle side effects such as persistence.
