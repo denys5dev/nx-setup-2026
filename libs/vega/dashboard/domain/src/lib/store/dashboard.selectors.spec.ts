@@ -2,7 +2,7 @@ import { initialState } from './dashboard.reducer';
 import {
   selectTodos,
   selectRemaining,
-  selectDashboardView,
+  selectDashboardModel,
 } from './dashboard.selectors';
 
 const todos = [
@@ -30,8 +30,8 @@ describe('dashboard selectors', () => {
     expect(result).toBe(1);
   });
 
-  it('when selectDashboardView is called, should return the presentation model', () => {
-    const result = selectDashboardView(state);
+  it('when selectDashboardModel is called, should return the presentation model', () => {
+    const result = selectDashboardModel(state);
 
     expect(result).toEqual({
       message: '',

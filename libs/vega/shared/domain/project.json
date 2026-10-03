@@ -1,0 +1,19 @@
+{
+  "name": "vega-shared-domain",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vega/shared/domain/src",
+  "prefix": "v",
+  "projectType": "library",
+  "tags": ["scope:vega", "type:domain", "domain:shared"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --noEmit -p libs/vega/shared/domain/tsconfig.lib.json"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

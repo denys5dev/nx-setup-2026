@@ -1,5 +1,5 @@
 <v-dashboard
-  [view]="view()"
+  [model]="model()"
   (refreshRequested)="store.dispatch(actions.load())"
   (newTitleChanged)="store.dispatch(actions.newTitleChanged({ title: $event }))"
   (editTitleChanged)="store.dispatch(actions.editTitleChanged({ title: $event }))"

@@ -2,32 +2,32 @@
   <header class="dashboard__header">
     <h1>Dashboard</h1>
     <p class="dashboard__status" role="status">
-      @if (view().pending) { {{ view().loaded ? 'Updating dashboard…' : 'Loading
-      dashboard…' }} } @else { {{ view().message }} }
+      @if (model().pending) { {{ model().loaded ? 'Updating dashboard…' :
+      'Loading dashboard…' }} } @else { {{ model().message }} }
     </p>
   </header>
 
-  @if (view().error; as error) {
+  @if (model().error; as error) {
   <p class="dashboard__error" role="alert">{{ error }}</p>
   }
 
   <section
     class="dashboard__panel"
     aria-labelledby="todos-heading"
-    [attr.aria-busy]="view().pending"
+    [attr.aria-busy]="model().pending"
   >
     <div class="dashboard__section-header">
       <h2 id="todos-heading">Todos</h2>
       <ds-button
         variant="secondary"
-        [disabled]="view().pending"
+        [disabled]="model().pending"
         (click)="refreshRequested.emit()"
         >Refresh</ds-button
       >
     </div>
     <form
       class="dashboard__form"
-      (ngSubmit)="todoCreated.emit(view().newTitle)"
+      (ngSubmit)="todoCreated.emit(model().newTitle)"
     >
       <label for="new-todo">New todo</label>
       <div class="dashboard__form-controls">
@@ -35,31 +35,31 @@
           class="dashboard__input"
           id="new-todo"
           name="newTodo"
-          [ngModel]="view().newTitle"
+          [ngModel]="model().newTitle"
           (ngModelChange)="newTitleChanged.emit($event)"
           [maxlength]="titleMaxLength"
-          [disabled]="view().pending || !view().loaded"
+          [disabled]="model().pending || !model().loaded"
           required
         />
         <ds-button
           type="submit"
-          [disabled]="view().pending || !view().loaded || !view().newTitle.trim()"
+          [disabled]="model().pending || !model().loaded || !model().newTitle.trim()"
           >Add todo</ds-button
         >
       </div>
     </form>
 
-    @if (view().loaded) {
+    @if (model().loaded) {
     <p class="dashboard__summary">
-      {{ view().remaining }} remaining of {{ view().todos.length }}
+      {{ model().remaining }} remaining of {{ model().todos.length }}
     </p>
     <ul class="dashboard__list" aria-label="Todos">
-      @for (todo of view().todos; track todo.id) {
+      @for (todo of model().todos; track todo.id) {
       <li class="dashboard__todo">
-        @if (view().editingId === todo.id) {
+        @if (model().editingId === todo.id) {
         <form
           class="dashboard__form dashboard__form--edit"
-          (ngSubmit)="todoUpdated.emit({ id: todo.id, input: { title: view().editTitle } })"
+          (ngSubmit)="todoUpdated.emit({ id: todo.id, input: { title: model().editTitle } })"
         >
           <label [for]="'edit-' + todo.id">Edit todo</label>
           <div class="dashboard__form-controls">
@@ -67,20 +67,20 @@
               class="dashboard__input"
               [id]="'edit-' + todo.id"
               name="editTitle"
-              [ngModel]="view().editTitle"
+              [ngModel]="model().editTitle"
               (ngModelChange)="editTitleChanged.emit($event)"
               [maxlength]="titleMaxLength"
-              [disabled]="view().pending"
+              [disabled]="model().pending"
               required
             />
             <ds-button
               type="submit"
-              [disabled]="view().pending || !view().editTitle.trim()"
+              [disabled]="model().pending || !model().editTitle.trim()"
               >Save</ds-button
             >
             <ds-button
               variant="secondary"
-              [disabled]="view().pending"
+              [disabled]="model().pending"
               (click)="editCancelled.emit()"
               >Cancel</ds-button
             >
@@ -95,19 +95,19 @@
         <div class="dashboard__actions">
           <ds-button
             variant="secondary"
-            [disabled]="view().pending"
+            [disabled]="model().pending"
             (click)="todoUpdated.emit({ id: todo.id, input: { completed: !todo.completed } })"
             >{{ todo.completed ? 'Reopen' : 'Complete' }}</ds-button
           >
           <ds-button
             variant="secondary"
-            [disabled]="view().pending"
+            [disabled]="model().pending"
             (click)="editRequested.emit(todo)"
             >Edit</ds-button
           >
           <ds-button
             variant="secondary"
-            [disabled]="view().pending"
+            [disabled]="model().pending"
             (click)="todoDeleted.emit(todo.id)"
             >Delete</ds-button
           >

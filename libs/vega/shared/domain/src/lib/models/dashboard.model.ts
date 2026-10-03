@@ -1,6 +1,6 @@
 import type { Todo } from '@celestial/shared/dashboard/contracts';
 
-export interface DashboardView {
+export interface DashboardModel {
   readonly message: string;
   readonly loaded: boolean;
   readonly pending: boolean;

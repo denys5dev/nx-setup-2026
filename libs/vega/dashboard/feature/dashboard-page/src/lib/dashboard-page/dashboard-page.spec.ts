@@ -4,7 +4,7 @@ import { Dashboard } from '@celestial/vega/dashboard/ui/dashboard';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import {
   DashboardPageActions,
-  selectDashboardView,
+  selectDashboardModel,
 } from '@celestial/vega/dashboard/domain';
 import { DashboardPage } from './dashboard-page';
 
@@ -15,7 +15,7 @@ function render() {
       provideMockStore({
         selectors: [
           {
-            selector: selectDashboardView,
+            selector: selectDashboardModel,
             value: {
               message: '',
               loaded: false,

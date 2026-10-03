@@ -4,7 +4,7 @@ import { Subject, of, throwError, type Subscription } from 'rxjs';
 import type { Action } from '@ngrx/store';
 import type { Todo } from '@celestial/shared/dashboard/contracts';
 import { DashboardEffects } from './dashboard.effects';
-import { DashboardDataService } from '../infrastructure/dashboard.data.service';
+import { DashboardService } from '../application/dashboard.service';
 import {
   DashboardApiActions as api,
   DashboardPageActions as page,
@@ -17,8 +17,7 @@ describe(DashboardEffects.name, () => {
   let received: Action[];
   let subscription: Subscription;
   let data: {
-    getSummary: ReturnType<typeof vi.fn>;
-    getTodos: ReturnType<typeof vi.fn>;
+    load: ReturnType<typeof vi.fn>;
     createTodo: ReturnType<typeof vi.fn>;
     updateTodo: ReturnType<typeof vi.fn>;
     deleteTodo: ReturnType<typeof vi.fn>;
@@ -28,8 +27,7 @@ describe(DashboardEffects.name, () => {
     actions = new Subject<Action>();
     received = [];
     data = {
-      getSummary: vi.fn(() => of({ message: 'Welcome' })),
-      getTodos: vi.fn(() => of([todo])),
+      load: vi.fn(() => of({ message: 'Welcome', todos: [todo] })),
       createTodo: vi.fn(() => of(todo)),
       updateTodo: vi.fn(() => of({ ...todo, completed: true })),
       deleteTodo: vi.fn(() => of(undefined)),
@@ -38,7 +36,7 @@ describe(DashboardEffects.name, () => {
       providers: [
         DashboardEffects,
         provideMockActions(() => actions),
-        { provide: DashboardDataService, useValue: data },
+        { provide: DashboardService, useValue: data },
       ],
     });
     subscription = TestBed.inject(DashboardEffects).request.subscribe(
@@ -63,10 +61,10 @@ describe(DashboardEffects.name, () => {
     expect(received).toEqual([api.started(), api.created({ todo })]);
   });
 
-  it('when create is dispatched with surrounding whitespace, should pass the trimmed title to the data service', () => {
+  it('when create is dispatched with surrounding whitespace, should pass the title to the application service', () => {
     actions.next(page.create({ title: ' Plan ' }));
 
-    expect(data.createTodo).toHaveBeenCalledWith({ title: 'Plan' });
+    expect(data.createTodo).toHaveBeenCalledWith({ title: ' Plan ' });
   });
 
   it('when update is dispatched, should emit the updated todo', () => {
@@ -78,7 +76,7 @@ describe(DashboardEffects.name, () => {
     ]);
   });
 
-  it('when update is dispatched, should pass the id and input to the data service', () => {
+  it('when update is dispatched, should pass the id and input to the application service', () => {
     actions.next(page.update({ id: 'one', input: { completed: false } }));
 
     expect(data.updateTodo).toHaveBeenCalledWith('one', { completed: false });
@@ -112,8 +110,8 @@ describe(DashboardEffects.name, () => {
   });
 
   it('when a request is pending, should ignore overlapping requests', () => {
-    const response = new Subject<Todo[]>();
-    data.getTodos.mockReturnValue(response);
+    const response = new Subject<{ message: string; todos: Todo[] }>();
+    data.load.mockReturnValue(response);
     actions.next(page.load());
 
     actions.next(page.create({ title: 'Plan' }));

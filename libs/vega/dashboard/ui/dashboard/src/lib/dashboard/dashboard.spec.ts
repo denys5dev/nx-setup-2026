@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import type { DashboardView } from './dashboard-view';
+import type { DashboardModel } from '@celestial/vega/shared/domain';
 import { Dashboard } from './dashboard';
 
-const view: DashboardView = {
+const model: DashboardModel = {
   message: 'Welcome',
   loaded: true,
   pending: false,
@@ -14,10 +14,10 @@ const view: DashboardView = {
   remaining: 1,
 };
 
-function render(overrides: Partial<DashboardView> = {}) {
+function render(overrides: Partial<DashboardModel> = {}) {
   TestBed.configureTestingModule({ imports: [Dashboard] });
   const fixture = TestBed.createComponent(Dashboard);
-  fixture.componentRef.setInput('view', { ...view, ...overrides });
+  fixture.componentRef.setInput('model', { ...model, ...overrides });
   fixture.detectChanges();
   return fixture;
 }

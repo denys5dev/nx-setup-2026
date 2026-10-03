@@ -49,4 +49,27 @@ export default [
       ],
     },
   },
+  {
+    files: ['src/lib/store/**/*.ts'],
+    ignores: ['**/*.spec.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@angular/common/http', '@angular/common/http/*'],
+              message:
+                'Keep HTTP access in the domain library infrastructure folder.',
+            },
+            {
+              group: ['**/infrastructure/**'],
+              message:
+                'Store code must access infrastructure through an application service.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];

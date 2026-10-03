@@ -17,6 +17,12 @@ const cases = [
   ['libs/vega/dashboard/domain', '@ngrx/store', false],
   ['libs/sirius/dashboard/domain', '@nestjs/common', false],
   ['libs/vega/shell', '@celestial/shared/ui/design-system', false],
+  ['libs/vega/dashboard/ui/dashboard', '@celestial/vega/shared/domain', false],
+  [
+    'libs/vega/dashboard/ui/dashboard',
+    '@celestial/vega/dashboard/domain',
+    true,
+  ],
   [
     'libs/vega/dashboard/ui/dashboard',
     '@celestial/shared/dashboard/contracts',
@@ -44,3 +50,18 @@ for (const [project, dependency, forbidden] of cases) {
     );
   });
 }
+
+test('when store code imports infrastructure, should reject the dependency', async () => {
+  const eslint = new ESLint({
+    cwd: resolve(workspaceRoot, 'libs/vega/dashboard/domain'),
+  });
+
+  const [result] = await eslint.lintText(
+    "import { DashboardDataService } from '../infrastructure/dashboard.data.service'; export { DashboardDataService };",
+    { filePath: 'src/lib/store/architecture-probe.ts' },
+  );
+
+  expect(result.messages.map(({ ruleId }) => ruleId)).toEqual([
+    'no-restricted-imports',
+  ]);
+});

@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
   DashboardPageActions,
-  selectDashboardView,
+  selectDashboardModel,
 } from '@celestial/vega/dashboard/domain';
 import { Dashboard } from '@celestial/vega/dashboard/ui/dashboard';
 
@@ -13,7 +13,7 @@ import { Dashboard } from '@celestial/vega/dashboard/ui/dashboard';
 })
 export class DashboardPage implements OnInit {
   protected readonly store = inject(Store);
-  protected readonly view = this.store.selectSignal(selectDashboardView);
+  protected readonly model = this.store.selectSignal(selectDashboardModel);
   protected readonly actions = DashboardPageActions;
 
   ngOnInit(): void {

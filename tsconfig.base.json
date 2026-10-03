@@ -41,6 +41,9 @@
       "@celestial/vega/shell": ["./libs/vega/shell/src/index.ts"],
       "@celestial/vega/dashboard/ui/dashboard": [
         "./libs/vega/dashboard/ui/dashboard/src/index.ts"
+      ],
+      "@celestial/vega/shared/domain": [
+        "./libs/vega/shared/domain/src/index.ts"
       ]
     },
     "sourceMap": true,

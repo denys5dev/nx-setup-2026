@@ -1,3 +1,4 @@
+import type { DashboardModel } from '@celestial/vega/shared/domain';
 import { createSelector } from '@ngrx/store';
 import { dashboardFeature, todoAdapter } from './dashboard.reducer';
 
@@ -8,11 +9,11 @@ export const selectRemaining = createSelector(
   selectTodos,
   (todos) => todos.filter((todo) => !todo.completed).length,
 );
-export const selectDashboardView = createSelector(
+export const selectDashboardModel = createSelector(
   dashboardFeature.selectDashboardState,
   selectTodos,
   selectRemaining,
-  (state, todos, remaining) => ({
+  (state, todos, remaining): DashboardModel => ({
     message: state.message,
     loaded: state.loaded,
     pending: state.pending,

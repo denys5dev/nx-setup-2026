@@ -1,15 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import {
-  catchError,
-  defer,
-  exhaustMap,
-  forkJoin,
-  map,
-  of,
-  startWith,
-} from 'rxjs';
-import { DashboardDataService } from '../infrastructure/dashboard.data.service';
+import { catchError, defer, exhaustMap, map, of, startWith } from 'rxjs';
+import { DashboardService } from '../application/dashboard.service';
 import {
   DashboardApiActions as api,
   DashboardPageActions as page,
@@ -18,7 +10,7 @@ import {
 @Injectable()
 export class DashboardEffects {
   private readonly actions = inject(Actions);
-  private readonly data = inject(DashboardDataService);
+  private readonly dashboard = inject(DashboardService);
 
   // ponytail: one in-flight dashboard request; use per-operation concurrency when the UI needs parallel edits.
   readonly request = createEffect(() =>
@@ -36,24 +28,19 @@ export class DashboardEffects {
         return defer(() => {
           switch (action.type) {
             case page.load.type:
-              return forkJoin({
-                summary: this.data.getSummary(),
-                todos: this.data.getTodos(),
-              }).pipe(
-                map(({ summary, todos }) =>
-                  api.loaded({ message: summary.message, todos }),
-                ),
-              );
+              return this.dashboard
+                .load()
+                .pipe(map((result) => api.loaded(result)));
             case page.create.type:
-              return this.data
-                .createTodo({ title: action.title.trim() })
+              return this.dashboard
+                .createTodo({ title: action.title })
                 .pipe(map((todo) => api.created({ todo })));
             case page.update.type:
-              return this.data
+              return this.dashboard
                 .updateTodo(action.id, action.input)
                 .pipe(map((todo) => api.updated({ todo })));
             case page.delete.type:
-              return this.data
+              return this.dashboard
                 .deleteTodo(action.id)
                 .pipe(map(() => api.deleted({ id: action.id })));
           }

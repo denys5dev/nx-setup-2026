@@ -36,13 +36,15 @@ apps/
   vega-e2e/                   full-stack Playwright tests
 libs/
   vega/
+    shared/domain/            shared frontend models and reusable services
     shell/                    application routes; lazy domain-shell loading
     dashboard/
       shell/                  dashboard routes and domain providers
       feature/dashboard-page/ store-connected parent component
-      ui/dashboard/           presentation component, view model and events
+      ui/dashboard/           presentation component and events
       domain/
         src/lib/store/        actions, reducer, selectors, effects
+        src/lib/application/  dashboard workflows
         src/lib/infrastructure/ HTTP data service
   sirius/
     shell/                    API module composition
@@ -75,12 +77,13 @@ Vega app → vega/shell → dashboard/shell (lazy)
                            ├─ feature/dashboard-page → domain
                            │                         → ui/dashboard
                            └─ domain providers
-UI → other UI and framework-free utilities/contracts
+UI → other UI, shared domain models and framework-free utilities/contracts
 ```
 
 Apps may import only shell libraries. Shells compose shells, features, API,
-domain, UI and utilities. Features depend on domain, UI and utilities; UI cannot
-import domain, NgRx or HTTP. Scope tags also prevent Vega/Sirius cross-imports.
+domain, UI and utilities. Features depend on domain, UI and utilities; UI can
+import scoped shared domain models, but cannot import feature domains, NgRx or
+HTTP. Scope tags also prevent Vega/Sirius cross-imports.
 These rules apply to library public APIs, with ESLint enforcing the dependencies.
 ESLint also rejects NestJS imports in Vega and UI libraries, Angular/NgRx imports
 in Sirius, and all three frameworks in utilities/contracts. Sirius cannot depend
@@ -131,18 +134,20 @@ Keep generated lint and typecheck targets consistent with existing libraries.
 ## Frontend layers
 
 `DashboardPage` connects NgRx Store to the stateless `Dashboard` view. The view
-receives a UI-owned model and emits typed user intentions; it owns no NgRx
-actions, store, HTTP calls, or mutable state. The parent maps those intentions
-to `DashboardPageActions`. The selector result structurally satisfies the UI
-model without either library depending on the other. `Store.selectSignal` reads
-the Redux store; it is not SignalStore.
+receives `DashboardModel` from `vega/shared/domain/models` and emits typed user
+intentions; it owns no NgRx actions, store, HTTP calls, or mutable state.
+The parent maps those intentions to
+`DashboardPageActions`. The selector explicitly returns the shared model, so UI
+and feature domain code share its contract without depending on each other.
+`Store.selectSignal` reads the Redux store; it is not SignalStore.
 
 The domain library owns:
 
 - `store/dashboard.actions.ts`: page intentions and API outcomes.
 - `store/dashboard.reducer.ts`: normalized todos plus loading, error, and editor state.
-- `store/dashboard.selectors.ts`: derived counts and the view model.
-- `store/dashboard.effects.ts`: asynchronous CRUD orchestration and error recovery.
+- `store/dashboard.selectors.ts`: derived counts and the model.
+- `store/dashboard.effects.ts`: request concurrency, action mapping and error recovery.
+- `application/dashboard.service.ts`: dashboard loading and CRUD workflows, including title normalization.
 - `infrastructure/dashboard.data.service.ts`: HTTP methods and endpoint URLs.
 - `dashboard.providers.ts`: feature state/effect registration, consumed by the dashboard shell route.
 
@@ -153,9 +158,10 @@ with the current `ngrx-feature-store` generator and NgRx 22 APIs.
 [NgRx Effects isolate asynchronous work](https://ngrx.io/guide/effects).
 
 This follows the reference project's domain/store and domain/infrastructure
-layout. Add `application/` services when there are reusable workflows or business
-rules beyond effect orchestration. Avoid a service that only forwards every HTTP
-method. API contracts are shared; frontend view models and state stay frontend-only.
+layout. Store effects call application services; application services own workflows
+and call infrastructure data services. Infrastructure owns HTTP details and does
+not depend on the store. API contracts are shared; frontend models and state
+stay frontend-only.
 
 The reducer keeps editor drafts to make this example's view stateless. A reusable
 form may instead own ephemeral form state; moving every focus/hover interaction
@@ -167,7 +173,8 @@ Effects allow one request at a time across load and mutations so an older load
 cannot overwrite a successful mutation. Controls are disabled while pending.
 Mutations update entities only on server confirmation; failures retain drafts and
 existing data. Add per-operation concurrency when parallel editing is needed.
-ESLint rejects direct HTTP imports from feature, application, and store code.
+ESLint rejects direct HTTP imports from feature, application, and store code, and
+rejects infrastructure imports from store code.
 
 Sirius validates requests in `api`, executes CRUD in the domain application
 service, and stores data in the infrastructure repository. The example repository

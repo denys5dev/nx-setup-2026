@@ -6,7 +6,7 @@ import type {
   UpdateTodoInput,
 } from '@celestial/shared/dashboard/contracts';
 import { Button } from '@celestial/shared/ui/design-system';
-import type { DashboardView } from './dashboard-view';
+import type { DashboardModel } from '@celestial/vega/shared/domain';
 
 @Component({
   selector: 'v-dashboard',
@@ -15,7 +15,7 @@ import type { DashboardView } from './dashboard-view';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
-  readonly view = input.required<DashboardView>();
+  readonly model = input.required<DashboardModel>();
   readonly refreshRequested = output<void>();
   readonly newTitleChanged = output<string>();
   readonly editTitleChanged = output<string>();
